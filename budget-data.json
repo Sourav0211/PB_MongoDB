@@ -1,0 +1,12 @@
+{
+  "myBudget": [
+    {"title": "Business_1", "budget": 450, "color": "#ffcd56"},
+    {"title": "Business_2", "budget": 750, "color": "#ff6384"},
+    {"title": "Home_Rent", "budget": 890, "color": "#36a2eb"},
+    {"title": "Office_Rent", "budget": 670, "color": "#fd6b19"},
+    {"title": "Groceries", "budget": 490, "color": "#283747"},
+    {"title": "Medical", "budget": 880, "color": "#7D3C98"},
+    {"title": "Shopping", "budget": 305, "color": "#FA0404"},
+    {"title": "Funds", "budget": 550, "color": "#2ECC71"}
+  ]
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Personal Budget - Financial Management App</title>
+
+    <meta
+      name="description"
+      content="Stay on track with Personal Budget, a free personal budget management app. Get alerts and view financial analytics."
+    />
+
+    <meta
+      name="keywords"
+      content="personal budget, free budget app, financial planning, budget alerts, financial analytics"
+    />
+
+    <link rel="stylesheet" href="reset.css" />
+    <link rel="stylesheet" href="main.css" />
+
+    <link rel="canonical" href="https://www.yourwebsite.com/" />
+  </head>
+  <body>
+    <a href="#main" class="skip">Skip to content</a>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/login.html">Login</a></li>
+        </ul>
+      </nav>
+
+      <div class="hero">
+        <h1>Personal Budget</h1>
+        <h2>A personal-budget management app</h2>
+      </div>
+    </header>
+    <main class="center" id="main">
+      <section class="page-area">
+        <article>
+          <h1>Stay on track</h1>
+          <p>
+            Do you know where you are spending your money? If you really stop to
+            track it down, you would get surprised! Proper budget management
+            depends on real data... and this app will help you with that!
+          </p>
+        </article>
+
+        <article>
+          <h1>Alerts</h1>
+          <p>
+            What if your clothing budget ended? You will get an alert. The goal
+            is to never go over the budget.
+          </p>
+        </article>
+
+        <article>
+          <h1>Results</h1>
+          <p>
+            People who stick to a financial plan, budgeting every expense, get
+            out of debt faster! Also, they to live happier lives... since they
+            expend without guilt or fear... because they know it is all good and
+            accounted for.
+          </p>
+        </article>
+
+        <article>
+          <h1>Free</h1>
+          <p>This app is free!!! And you are the only one holding your data!</p>
+        </article>
+
+
+        <figure>
+          <br />
+          <h1>Pie_Chart_Using_Chart.js</h1>
+          <canvas id="myChart" width="400" height="400"></canvas>
+        </figure>
+      </section>
+      <br />
+      <h1>Pie_Chart_Using_D3.js</h1>
+      <svg id="chart" width="500" height="400"></svg>
+    </main>
+    <footer class="bottom">
+      <div class="center">All rights reserved &copy; Sourav Shetye</div>
+    </footer>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js"
+      integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
+      integrity="sha512-s+xg36jbIujB2S2VKfpGmlC3T5V2TF3lY48DX7u2r9XzGzgPsa6wTpOQA7J9iffvdeBN0q9tKzRxVxw1JviZPg=="
+      crossorigin="anonymous"
+    ></script>
+  
+    <script>
+      var dataSource = {
+        datasets: [
+          {
+            data: [],
+            backgroundColor: [
+              "#ffcd56",
+              "#ff6384",
+              "#36a2eb",
+              "#fd6b19",
+              "#283747",
+              "#7D3C98",
+              "#FA0404",
+              "#2ECC71",
+            ],
+          },
+        ],
+        labels: [],
+      };
+
+      function createChart() {
+        var ctx = document.getElementById("myChart").getContext("2d");
+        var myPieChart = new Chart(ctx, {
+          type: "pie",
+          data: dataSource,
+        });
+      }
+
+
+
+      function getBudget() {
+        axios
+          .get("/budget")
+          .then(function (res) {
+            const budgetData = res.data.myBudget;
+            for (let i = 0; i < budgetData.length; i++) {
+              dataSource.datasets[0].data[i] = budgetData[i].budget;
+              dataSource.labels[i] = budgetData[i].title;
+              dataSource.datasets[0].backgroundColor[i]=budgetData[i].color;
+            }
+            createChart();
+            createBarChart(budgetData);
+          })
+          .catch(function (err) {
+            console.error("Error fetching data:", err);
+          });
+      }
+
+      getBudget();
+    </script>
+
+<script>
+  
+  const width = 400;
+  const height = 400;
+  const radius = Math.min(width, height) / 2;
+
+  const svg = d3
+    .select("#chart")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", `translate(${width / 2},${height / 2})`);
+
+  const dataURL = "http://localhost:3000/budget";
+
+  d3.json(dataURL).then((data) => {
+    const budgetData = data.myBudget;
+
+    const colorScale = d3.scaleOrdinal().domain(budgetData.map((d) => d.title)).range(budgetData.map((d) => d.color));
+    const pie = d3.pie().value((d) => d.budget);
+    const pieData = pie(budgetData);
+    const arc = d3.arc().innerRadius(0).outerRadius(radius);
+    const slices = svg
+      .selectAll("path")
+      .data(pieData)
+      .enter()
+      .append("path")
+      .attr("d", arc)
+      .attr("fill", (d) => colorScale(d.data.title));
+    slices
+      .append("text")
+      .attr("transform", (d) => `translate(${arc.centroid(d)})`)
+      .attr("dy", "0.35em")
+      .text((d) => d.data.title);
+  });
+</script>
+  </body>
+</html>
